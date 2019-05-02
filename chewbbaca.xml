@@ -1,0 +1,290 @@
+<tool id="chewBBACA" name="chewBBACA" version="2.0">
+    <description>BSR-Based Allele Calling Algorithm
+    </description>
+    <requirements>
+        <requirement type="package" version="3.6">Python</requirement>
+        <requirement type="package" version="1.15.3">numpy</requirement>
+        <requirement type="package" version="0.19.1">scipy</requirement>
+        <requirement type="package" version="5.22.2.1">perl</requirement>
+        <requirement type="package" version="1.72">biopython</requirement>
+        <requirement type="package" version="1.12.9">plotly</requirement>
+        <requirement type="package" version="1.8.2">SPARQLWrapper</requirement>
+        <requirement type="package" version="0.23.4">pandas</requirement>
+        <requirement type="package" version="2.5.0">blast</requirement>
+        <requirement type="package" version="2.6.3">prodigal</requirement>
+        <requirement type="package" version="2.1">clustalw</requirement>
+        <requirement type="package" version="7.313">mafft</requirement>
+        <requirement type="package" version="2.0.16">chewbbaca</requirement>
+    </requirements>
+    <!-- basic error handling -->
+    <stdio>
+        <!-- Assume anything other than zero is an error -->
+        <exit_code range="1:" level="fatal" description="Tool exception" />
+        <exit_code range=":-1" level="fatal" description="Tool exception" />
+    </stdio>
+    <command>
+        perl 
+        $__tool_directory__/chewBBACA.pl $selectFunction.myFunctions
+          #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall')
+            '${",".join(map(str, $selectFunction.input1))}'
+          #elif str( $selectFunction.myFunctions ) in ('SchemaEvaluator', 'TestGenomeQuality', 'ExtractCgMLST', 'RemoveGenes')
+            $selectFunction.input1
+          #else
+            'NULL'
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'AlleleCall'
+                #set $input_names = []
+                #for $input in $selectFunction.input1
+                    $input_names.append($input.element_identifier)
+                #end for
+                #set $input_name = ",".join(map(str, $input_names))
+            '$input_name'
+          #else
+            'NULL'
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'CreateSchema'
+            '$schema'
+          #elif str( $selectFunction.myFunctions ) == 'AlleleCall'
+            '$statistics,$contigsinfo,$alleles,$logginginfo,$repeatedloci'
+          #elif str( $selectFunction.myFunctions ) == 'SchemaEvaluator'
+            '$schemaplot'
+          #elif str( $selectFunction.myFunctions ) == 'TestGenomeQuality'
+            '$thresholdplot,$removedgenomes'
+          #elif str( $selectFunction.myFunctions ) == 'RemoveGenes'
+            '$removedgenes'
+          #else
+            'NULL'
+          #end if
+
+          "python $__tool_directory__/chewBBACA.py $selectFunction.myFunctions
+          #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall', 'TestGenomeQuality', 'ExtractCgMLST')
+            -o output_dir
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'RemoveGenes'
+            -o output_removegenes
+          #end if
+          #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall')
+            -i input_dir
+            --cpu \${GALAXY_SLOTS:-4}
+          #end if
+          #if str( $selectFunction.myFunctions ) in ('SchemaEvaluator', 'TestGenomeQuality', 'ExtractCgMLST', 'RemoveGenes')
+            -i $selectFunction.input1
+          #end if
+          #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall')
+            #if $selectFunction.bsr
+              --bsr $selectFunction.bsr
+            #end if
+            #if $selectFunction.taxon
+              --ptf '$__tool_directory__/TrainingFiles4Prodigal/$selectFunction.taxon'
+            #end if
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'CreateSchema'
+            #if $selectFunction.minBpLocus
+              -l $selectFunction.minBpLocus
+            #end if
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'AlleleCall'
+            #if $selectFunction.mode.schema_select=="system"
+              -g ${ filter( lambda x: str( x[0] ) == str( $selectFunction.mode.reference ), $__app__.tool_data_tables[ 'chewbbaca_schemas' ].get_fields() )[0][-1] }
+            #else
+              -g $selectFunction.mode.genes
+            #end if
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'SchemaEvaluator'
+            --cpu \${GALAXY_SLOTS:-4}
+            #if $selectFunction.conserved
+              -p
+            #end if
+            -l output_rms/SchemaEvaluator.html
+            -ta $selectFunction.ncbiTA
+            -t $selectFunction.threshold
+            #if $selectFunction.title
+              --title '$selectFunction.title'
+            #end if
+            -s $selectFunction.numBoxplots
+            #if $selectFunction.light
+              --light
+            #end if
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'TestGenomeQuality'
+            -n $selectFunction.maxNumIterations
+            -t $selectFunction.maxThreshold
+            -s $selectFunction.stepThreshold
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'ExtractCgMLST'
+            #if $selectFunction.genes
+              -r $selectFunction.genes
+            #end if
+            #if $selectFunction.genomes
+              -g $selectFunction.genomes
+            #end if
+            #if $selectFunction.maxPresence
+              -p $selectFunction.maxPresence
+            #end if
+          #end if
+          #if str( $selectFunction.myFunctions ) == 'RemoveGenes'
+            -g $selectFunction.genes
+          #end if
+          "
+    </command>
+
+    <inputs>
+        <conditional name="selectFunction">
+            <param name="myFunctions" type="select" label="Select function">
+                <option value="CreateSchema">CreateSchema: Create a gene by gene schema based on genomes</option>
+                <option value="AlleleCall" selected="true">AlleleCall: Perform allele call for target genomes</option>
+                <option value="SchemaEvaluator">SchemaEvaluator: Tool that builds an html output to better navigate/visualize your schema</option>
+                <option value="TestGenomeQuality">TestGenomeQuality: Analyze your allele call output to refine schemas</option>
+                <option value="ExtractCgMLST">ExtractCgMLST: Select a subset of loci without missing data (to be used as PHYLOViZ input)</option>
+                <option value="RemoveGenes">RemoveGenes: Remove a provided list of loci from your allele call output</option>
+            </param>
+            <when value="CreateSchema">
+                <param name="input1" format="fasta" type="data" multiple="true" label="Selection of genome files (fasta)" />
+                <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
+                <param name="taxon" type="select" optional="true" label="taxon">
+                    <option value="trained_campyJejuni.trn">Campylobacter jejuni</option>
+                    <option value="Cd_630.trn">Clostridioides difficile</option>
+                    <option value="trained_eColi.trn" selected="true">Escherichia coli</option>
+                    <option value="Listeria_monocytogenes.trn" >Listeria monocytogenes</option>
+                    <option value="trained_salmonellaEnterica_enteritidis.trn">Salmonella enterica</option>
+                    <option value="trained_strepAgalactiae.trn">Streptococcus agalactiae</option>
+                    <option value="trained_yersiniaEnterocolitica.trn">Yersinia enterocolitica</option>
+                </param>
+                <param name="minBpLocus" type="integer" value="200" optional="true" label="minimum bp locus lenght" help="Integer" />
+            </when>
+            <when value="AlleleCall">
+                <param name="input1" format="fasta" type="data" multiple="true" label="Selection of genome files (fasta)" />
+                <conditional name="mode">
+                  <param name="schema_select" type="select" display="radio" label="Which schema would you like to use as a reference?">
+                    <option value="system" selected="True">System reference</option>
+                    <option value="user">Own reference</option>
+                  </param>
+                  <when value="system">
+                    <param name="reference" type="select" label="Choose reference">
+                      <options from_data_table="chewbbaca_schemas" />
+                     </param>
+                  </when>
+                  <when value="user">
+                    <param name="genes" format="txt" type="data" label="File with list of genes (fasta)" />
+                  </when>
+                </conditional>
+                <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
+                <param name="taxon" type="select" optional="true" label="taxon">
+                    <option value="trained_campyJejuni.trn">Campylobacter jejuni</option>
+                    <option value="Cd_630.trn">Clostridioides difficile</option>
+                    <option value="trained_eColi.trn" selected="true">Escherichia coli</option>
+                    <option value="Listeria_monocytogenes.trn" >Listeria monocytogenes</option>
+                    <option value="trained_salmonellaEnterica_enteritidis.trn">Salmonella enterica</option>
+                    <option value="trained_strepAgalactiae.trn">Streptococcus agalactiae</option>
+                    <option value="trained_yersiniaEnterocolitica.trn">Yersinia enterocolitica</option>
+                </param>
+                <!--<param name="forceContinue" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force continue" />-->
+                <!--<param name="forceReset" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force reset" />-->
+                <!--<param name="jsonFile" type="boolean" truevalue="true" falsevalue="false" checked="False" label="report in json file" />-->
+            </when>
+            <when value="SchemaEvaluator">
+                <param name="input1" format="txt" type="data" label="File with list of genes (fasta)" />
+                <param name="conserved" type="boolean" truevalue="true" falsevalue="false" checked="False" label="One bad allele still makes gene conserved" />
+                <param name="ncbiTA" type="integer" value="11" optional="true" label="ncbi translation table" help="Integer" />
+                <param name="threshold" type="float" value="0.05" optional="true" label="Threshold" />
+                <param name="title" type="text" value="My Analyzed wg/cg MLST Schema - Rate My Schema" optional="true" label="title on the html plot" />
+                <param name="numBoxplots" type="integer" value="500" optional="true" label="number of boxplots per page (more than 500 can make the page very slow)" help="Integer" />
+                <param name="light" type="boolean" truevalue="true" falsevalue="false" checked="False" label="skip clustal and mafft run" />
+            </when>
+            <when value="TestGenomeQuality">
+                <param name="input1" format="tsv" type="data" label="raw allele call matrix file" />
+                <param name="maxNumIterations" type="integer" value="12" label="maximum number of iterations" help="Each iteration removes a set of genomes over the defined threshold (-t) and recalculates all loci presence percentages" />
+                <param name="maxThreshold" type="integer" value="200" label="maximum threshold of bad calls above 95 percent" help="This threshold represents the maximum number of missing loci allowed, for each genome independently, before removing it (genome)" />
+                <param name="stepThreshold" type="integer" value="5" label="step between each threshold analysis (suggested 5)" help="Integer" />
+            </when>
+            <when value="ExtractCgMLST">
+                <param name="input1" format="tsv" type="data" label="input file to clean" />
+                <param name="genes" format="txt" type="data" optional="true" label="list of genes to remove, one per line" help="e.g. the list of gene detected by ParalogPrunning.py" />
+                <param name="genomes" format="txt" type="data" optional="true" label="list of genomes to remove, one per line" help="e.g. list of genomes to be removed selected based on testGenomeQuality results" />
+                <param name="maxPresence" type="float" value="1.0" optional="true" label="maximum presence (e.g 0.95)" >
+		            <validator type="in_range" min="0" max="1" />
+		        </param>
+            </when>
+            <when value="RemoveGenes">
+                <param name="input1" format="tsv" type="data" label="main matrix file from which to remove" />
+                <param name="genes" format="txt" type="data" label="list of genes to remove" />
+            </when>
+        </conditional>
+    </inputs>
+
+    <!-- define outputs -->
+    <outputs>
+        <data format="txt" name="schema" label="${tool.name}:CreateSchema on ${on_string}" >
+            <filter>selectFunction['myFunctions'] == "CreateSchema"</filter>
+        </data>
+        <data format="tsv" name="statistics" label="${tool.name}:AlleleCall on ${on_string}: Statistics" >
+            <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
+        </data>
+        <data format="tsv" name="contigsinfo" label="${tool.name}:AlleleCall on ${on_string}: Contigs Info" >
+            <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
+        </data>
+        <data format="tsv" name="alleles" label="${tool.name}:AlleleCall on ${on_string}: Alleles" >
+            <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
+        </data>
+        <data format="txt" name="logginginfo" label="${tool.name}:AlleleCall on ${on_string}: Logging info" >
+            <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
+        </data>
+        <data format="txt" name="repeatedloci" label="${tool.name}:AlleleCall on ${on_string}: Repeated Loci" >
+            <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
+        </data>
+        <data format="html" name="schemaplot" label="${tool.name}:SchemaEvaluator on ${on_string}" >
+            <filter>selectFunction['myFunctions'] == "SchemaEvaluator"</filter>
+        </data>
+        <data format="html" name="thresholdplot" from_work_dir="output_dir/GenomeQualityPlot.html" label="${tool.name}:TestGenomeQuality on ${on_string}: Plot" >
+            <filter>selectFunction['myFunctions'] == "TestGenomeQuality"</filter>
+        </data>
+        <data format="tsv" name="removedgenomes" from_work_dir="output_dir/removedGenomes.txt" label="${tool.name}:TestGenomeQuality on ${on_string}: Removed genomes" >
+            <filter>selectFunction['myFunctions'] == "TestGenomeQuality"</filter>
+        </data>
+        <data format="tsv" name="cgmlst" from_work_dir="output_dir/cgMLST.tsv" label="${tool.name}:ExtractCgMLST on ${on_string}: cgMLST" >
+            <filter>selectFunction['myFunctions'] == "ExtractCgMLST"</filter>
+        </data>
+        <data format="txt" name="cgmlstschema" from_work_dir="output_dir/cgMLSTschema.txt" label="${tool.name}:ExtractCgMLST on ${on_string}: cgMLSTschema" >
+            <filter>selectFunction['myFunctions'] == "ExtractCgMLST"</filter>
+        </data>
+        <data format="tsv" name="removedgenes" from_work_dir="output_removegenes.tsv" label="${tool.name}:RemoveGenes on ${on_string}" >
+            <filter>selectFunction['myFunctions'] == "RemoveGenes"</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test>
+            <param name="selectFunction['myFunctions']" value="AlleleCall" />
+            <param name="input1" value="a_contigs.fasta" ftype="fasta" />
+            <param name="selectFunction.mode['schema_select']" value="system" />
+            <param name="selectFunction.mode['reference']" value="_schema.txt" ftype="txt" />
+            <param name="selectFunction['taxon']" value="trained_eColi.trn" ftype="fasta" />
+            <output name="statistics" file="statistics" ftype="tsv" />
+            <output name="contigsinfo" file="contigsinfo" ftype="tsv" />
+            <output name="alleles" file="alleles" ftype="tsv" />
+            <output name="logginginfo" file="logginginfo" ftype="txt" />
+            <output name="repeatedloci" file="repeatedloci" ftype="txt" />
+        </test>
+    </tests>
+    <help>
+**chewBBACA** stands for "BSR-Based Allele Calling Algorithm". The "chew" part could be thought of as "Comprehensive and  Highly Efficient Workflow" 
+but at this point still it needs a bit of work to make that claim so we just add "chew" to add extra coolness to the software name.
+This tool is in beta test.
+
+The development of the tools have been supported by INNUENDO project (https://www.innuendoweb.org) co-funded by the European Food Safety Authority (EFSA), grant agreement GP/EFSA/AFSCO/2015/01/CT2
+("New approaches in identifying and characterizing microbial and chemical hazards") and by the ONEIDA project (LISBOA-01-0145-FEDER-016417) co-funded by FEEI - “Fundos Europeus Estruturais e de Investimento” 
+from “Programa Operacional Regional Lisboa 2020” and by national funds from FCT - “Fundação para a Ciência e a Tecnologia” and BacGenTrack (TUBITAK/0004/2014) 
+[FCT/ Scientific and Technological Research Council of Turkey (Türkiye Bilimsel ve Teknolojik Araşrrma Kurumu, TÜBITAK)].
+    </help>
+    <citations>
+      <citation type="bibtex">@ARTICLE{andrews_s,
+            author = {Rossi, M and Silva, M and Ribeiro-Gonçalves, B and Silva, DN and Machado, MP and Oleastro, M and Borges, V and Isidro, J and Gomes, JP and Vieira, L and Barker, DOR and Llarena, AK and Halkilahti,
+            J and Jaakkonen, A and Palma, F and Culebro, A and Kivistö, R and Hänninen, ML and Laukkanen-Ninios, R and Fredriksson-Ahomaa, M and Salmenlinna, S and Hakkinen, M and Garaizer, J and Bikandi, J and Hilbert,
+            F and Taboada, EN and Carriço, JA},
+            keywords = {bioinformatics, ngs, mlst},
+            title = {{INNUENDO whole and core genome MLST databases and schemas for foodborne pathogens}},
+            url = {https://github.com/TheInnuendoProject/chewBBACA_schemas}
+        }</citation>
+      <citation type="doi">10.1099/mgen.0.000166</citation>
+      <citation type="doi">10.1371/journal.pgen.1007261</citation>
+    </citations>
+</tool>

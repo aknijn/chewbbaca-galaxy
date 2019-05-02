@@ -74,8 +74,8 @@
             #if $selectFunction.bsr
               --bsr $selectFunction.bsr
             #end if
-            #if $selectFunction.taxon
-              --ptf 'TrainingFiles4Prodigal/$selectFunction.taxon'
+            #if $selectFunction.ptffile
+              --ptf '$selectFunction.ptffile'
             #end if
           #end if
           #if str( $selectFunction.myFunctions ) == 'CreateSchema'
@@ -141,15 +141,7 @@
             <when value="CreateSchema">
                 <param name="input1" format="fasta" type="data" multiple="true" label="Selection of genome files (fasta)" />
                 <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
-                <param name="taxon" type="select" optional="true" label="taxon">
-                    <option value="trained_campyJejuni.trn">Campylobacter jejuni</option>
-                    <option value="Cd_630.trn">Clostridioides difficile</option>
-                    <option value="trained_eColi.trn" selected="true">Escherichia coli</option>
-                    <option value="Listeria_monocytogenes.trn" >Listeria monocytogenes</option>
-                    <option value="trained_salmonellaEnterica_enteritidis.trn">Salmonella enterica</option>
-                    <option value="trained_strepAgalactiae.trn">Streptococcus agalactiae</option>
-                    <option value="trained_yersiniaEnterocolitica.trn">Yersinia enterocolitica</option>
-                </param>
+                <param name="ptffile" type="data" optional="true" multiple="false" label="Prodigal Training File" />
                 <param name="minBpLocus" type="integer" value="200" optional="true" label="minimum bp locus lenght" help="Integer" />
             </when>
             <when value="AlleleCall">
@@ -169,15 +161,7 @@
                   </when>
                 </conditional>
                 <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
-                <param name="taxon" type="select" optional="true" label="taxon">
-                    <option value="trained_campyJejuni.trn">Campylobacter jejuni</option>
-                    <option value="Cd_630.trn">Clostridioides difficile</option>
-                    <option value="trained_eColi.trn">Escherichia coli</option>
-                    <option value="Listeria_monocytogenes.trn" >Listeria monocytogenes</option>
-                    <option value="trained_salmonellaEnterica_enteritidis.trn">Salmonella enterica</option>
-                    <option value="trained_strepAgalactiae.trn">Streptococcus agalactiae</option>
-                    <option value="trained_yersiniaEnterocolitica.trn">Yersinia enterocolitica</option>
-                </param>
+                <param name="ptffile" type="data" optional="true" multiple="false" label="Prodigal Training File" />
                 <!--<param name="forceContinue" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force continue" />-->
                 <!--<param name="forceReset" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force reset" />-->
                 <!--<param name="jsonFile" type="boolean" truevalue="true" falsevalue="false" checked="False" label="report in json file" />-->

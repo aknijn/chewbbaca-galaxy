@@ -56,7 +56,7 @@
             'NULL'
           #end if
 
-          "python $__tool_directory__/chewBBACA.py $selectFunction.myFunctions
+          "chewBBACA.py $selectFunction.myFunctions
           #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall', 'TestGenomeQuality', 'ExtractCgMLST')
             -o output_dir
           #end if
@@ -75,7 +75,7 @@
               --bsr $selectFunction.bsr
             #end if
             #if $selectFunction.taxon
-              --ptf '$__tool_directory__/TrainingFiles4Prodigal/$selectFunction.taxon'
+              --ptf 'TrainingFiles4Prodigal/$selectFunction.taxon'
             #end if
           #end if
           #if str( $selectFunction.myFunctions ) == 'CreateSchema'
@@ -172,7 +172,7 @@
                 <param name="taxon" type="select" optional="true" label="taxon">
                     <option value="trained_campyJejuni.trn">Campylobacter jejuni</option>
                     <option value="Cd_630.trn">Clostridioides difficile</option>
-                    <option value="trained_eColi.trn" selected="true">Escherichia coli</option>
+                    <option value="trained_eColi.trn">Escherichia coli</option>
                     <option value="Listeria_monocytogenes.trn" >Listeria monocytogenes</option>
                     <option value="trained_salmonellaEnterica_enteritidis.trn">Salmonella enterica</option>
                     <option value="trained_strepAgalactiae.trn">Streptococcus agalactiae</option>
@@ -256,13 +256,12 @@
             <param name="selectFunction['myFunctions']" value="AlleleCall" />
             <param name="input1" value="a_contigs.fasta" ftype="fasta" />
             <param name="selectFunction.mode['schema_select']" value="system" />
-            <param name="selectFunction.mode['reference']" value="_schema.txt" ftype="txt" />
-            <param name="selectFunction['taxon']" value="trained_eColi.trn" ftype="fasta" />
-            <output name="statistics" file="statistics" ftype="tsv" />
-            <output name="contigsinfo" file="contigsinfo" ftype="tsv" />
-            <output name="alleles" file="alleles" ftype="tsv" />
-            <output name="logginginfo" file="logginginfo" ftype="txt" />
-            <output name="repeatedloci" file="repeatedloci" ftype="txt" />
+            <param name="selectFunction.mode['reference']" value="schema_pubMLST" />
+            <output name="statistics" >
+                <assert_contents>
+                    <has_text text="a_contigs.fasta" />
+                </assert_contents>
+			</output>
         </test>
     </tests>
     <help>

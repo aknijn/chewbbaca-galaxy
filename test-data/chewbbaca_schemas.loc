@@ -1,0 +1,2 @@
+#schemas
+schema_pubMLST	schema_pubMLST	${__HERE__}/schema_ecoli_pubMLST_Achtman/_schema.txt

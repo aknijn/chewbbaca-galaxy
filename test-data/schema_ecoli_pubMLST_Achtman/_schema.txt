@@ -1,0 +1,9 @@
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/purA-protein1.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/mdh-protein4.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/mdh-protein3.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/icd-protein2.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/gyrB-protein26.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/fumC-protein9.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/fumC-protein3.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/fumC-protein13.fasta
+/home/biolinu/mytools/chewbbaca-galaxy/test-data/schema_ecoli_pubMLST_Achtman/adk-protein33.fasta

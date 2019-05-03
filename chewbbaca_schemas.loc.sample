@@ -1,2 +1,2 @@
 #schemas
-schema_pubMLST	schema_pubMLST	${__HERE__}/schema_ecoli_pubMLST_Achtman/_schema.txt
+schema_pubMLST	schema_pubMLST	${__HERE__}/test-data/schema_ecoli_pubMLST_Achtman/_schema.txt

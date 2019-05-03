@@ -1,0 +1,8 @@
+categories:
+- Phylogenetics
+description: Galaxy wrapper for the chewBBACA BSR-Based Allele Calling Algorithm
+homepage_url: https://github.com/aknijn/chewbbaca-galaxy
+long_description: Galaxy wrapper for the chewBBACA BSR-Based Allele Calling Algorithm
+  from https://github.com/B-UMMI/chewBBACA
+name: chewbbaca
+owner: iss

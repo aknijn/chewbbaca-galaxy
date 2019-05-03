@@ -191,6 +191,7 @@
                   <when value="user">
                     <param name="ptf_user" format="binary" type="data" optional="true" multiple="false" label="Prodigal Training File" />
                   </when>
+                  <when value="noptf" />
                 </conditional>
                 <!--<param name="forceContinue" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force continue" />-->
                 <!--<param name="forceReset" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force reset" />-->

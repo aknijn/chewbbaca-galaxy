@@ -23,7 +23,7 @@ runChewBBACA();
 collectOutput();
 exit(0);
 
-# Run INNUca
+# Run chewBBACA
 sub runChewBBACA {
     my $abs_path = Cwd::abs_path($PROGRAM_NAME);
     my $scriptdir = dirname($abs_path);
@@ -117,7 +117,7 @@ sub collectOutput{
     if ($myFunction eq "SchemaEvaluator") {
       my($dataname, $datadir, $datasuffix) = fileparse($output,qr/\.[^.]*/);
       my @output_files = glob "output_rms/*.*";
-      my $dest_dir = $datadir . $dataname . "/";
+      my $dest_dir = $dataname . "/";
       mkdir($dest_dir);
       my $new_output_file = "";
       foreach my $output_file (@output_files) {
@@ -133,15 +133,16 @@ sub collectOutput{
          push(@newlines,$_);
       }
       # write the html to the Galaxy output file
-      open($fh2, '>', $output) || die "File not found";
-      print $fh2 @newlines;
-      close($fh2);
+      #open($fh2, '>', $output) || die "File not found";
+      #print $fh2 @newlines;
+      #close($fh2);
       my @html_output_files = glob "output_rms/genes_html/*.*";
       my $html_dest_dir = $dest_dir . "genes_html/";
       mkdir($html_dest_dir);
       foreach my $html_output_file (@html_output_files) {
          move($html_output_file, $html_dest_dir) or die "Could not move $html_output_file: $!\n";
       }
+      my $cmd = `tar -cpf $output $dest_dir`;
     }
     return 0;
 }

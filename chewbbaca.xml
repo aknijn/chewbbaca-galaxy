@@ -74,8 +74,11 @@
             #if $selectFunction.bsr
               --bsr $selectFunction.bsr
             #end if
-            #if $selectFunction.ptffile
-              --ptf '$selectFunction.ptffile'
+
+            #if $selectFunction.ptfmode.ptf_select=="system"
+              --ptf ${ filter( lambda x: str( x[0] ) == str( $selectFunction.ptfmode.ptf_system ), $__app__.tool_data_tables[ 'chewbbaca_ptfs' ].get_fields() )[0][-1] }
+            #elif $selectFunction.ptfmode.ptf_select=="user"
+              --ptf $selectFunction.ptfmode.ptf_user
             #end if
           #end if
           #if str( $selectFunction.myFunctions ) == 'CreateSchema'
@@ -141,7 +144,20 @@
             <when value="CreateSchema">
                 <param name="input1" format="fasta" type="data" multiple="true" label="Selection of genome files (fasta)" />
                 <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
-                <param name="ptffile" type="data" optional="true" multiple="false" label="Prodigal Training File" />
+                <conditional name="ptfmode">
+                  <param name="ptf_select" type="select" display="radio" label="Which Prodigal training file would you like to use?">
+                    <option value="system" selected="True">System training file</option>
+                    <option value="user">Own training file</option>
+                  </param>
+                  <when value="system">
+                    <param name="ptf_system" type="select" label="Choose Prodigal training file">
+                      <options from_data_table="chewbbaca_ptfs" />
+                    </param>
+                  </when>
+                  <when value="user">
+                    <param name="ptf_user" format="binary" type="data" optional="true" multiple="false" label="Prodigal Training File" />
+                  </when>
+                </conditional>
                 <param name="minBpLocus" type="integer" value="200" optional="true" label="minimum bp locus lenght" help="Integer" />
             </when>
             <when value="AlleleCall">
@@ -154,14 +170,28 @@
                   <when value="system">
                     <param name="reference" type="select" label="Choose reference">
                       <options from_data_table="chewbbaca_schemas" />
-                     </param>
+                    </param>
                   </when>
                   <when value="user">
                     <param name="genes" format="txt" type="data" label="File with list of genes (fasta)" />
                   </when>
                 </conditional>
                 <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
-                <param name="ptffile" type="data" optional="true" multiple="false" label="Prodigal Training File" />
+                <conditional name="ptfmode">
+                  <param name="ptf_select" type="select" display="radio" label="Which Prodigal training file would you like to use?">
+                    <option value="system">System training file</option>
+                    <option value="user">Own training file</option>
+                    <option value="noptf" selected="True">No training file</option>
+                  </param>
+                  <when value="system">
+                    <param name="ptf_system" type="select" label="Choose Prodigal training file">
+                      <options from_data_table="chewbbaca_ptfs" />
+                    </param>
+                  </when>
+                  <when value="user">
+                    <param name="ptf_user" format="binary" type="data" optional="true" multiple="false" label="Prodigal Training File" />
+                  </when>
+                </conditional>
                 <!--<param name="forceContinue" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force continue" />-->
                 <!--<param name="forceReset" type="boolean" truevalue="true" falsevalue="false" checked="False" label="force reset" />-->
                 <!--<param name="jsonFile" type="boolean" truevalue="true" falsevalue="false" checked="False" label="report in json file" />-->
@@ -216,7 +246,7 @@
         <data format="txt" name="repeatedloci" label="${tool.name}:AlleleCall on ${on_string}: Repeated Loci" >
             <filter>selectFunction['myFunctions'] == "AlleleCall"</filter>
         </data>
-        <data format="html" name="schemaplot" label="${tool.name}:SchemaEvaluator on ${on_string}" >
+        <data format="tar" name="schemaplot" label="${tool.name}:SchemaEvaluator on ${on_string}" >
             <filter>selectFunction['myFunctions'] == "SchemaEvaluator"</filter>
         </data>
         <data format="html" name="thresholdplot" from_work_dir="output_dir/GenomeQualityPlot.html" label="${tool.name}:TestGenomeQuality on ${on_string}: Plot" >
@@ -241,6 +271,7 @@
             <param name="input1" value="a_contigs.fasta" ftype="fasta" />
             <param name="selectFunction.mode['schema_select']" value="system" />
             <param name="selectFunction.mode['reference']" value="schema_pubMLST" />
+            <param name="selectFunction.mode['ptf_select']" value="noptf" />
             <output name="statistics" >
                 <assert_contents>
                     <has_text text="a_contigs.fasta" />

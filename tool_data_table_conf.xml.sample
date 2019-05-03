@@ -1,10 +1,10 @@
 <tables>
     <table name="chewbbaca_schemas" comment_char="#">
         <columns>value, name, path</columns>
-        <file path="${__HERE__}/test-data/chewbbaca_schemas.loc" />
+        <file path="${__HERE__}/chewbbaca_schemas.loc.sample" />
     </table>
     <table name="chewbbaca_ptfs" comment_char="#">
         <columns>value, name, path</columns>
-        <file path="${__HERE__}/test-data/chewbbaca_ptfs.loc" />
+        <file path="${__HERE__}/chewbbaca_ptfs.loc.sample" />
     </table>
 </tables>

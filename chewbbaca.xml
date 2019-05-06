@@ -283,7 +283,6 @@
     <help>
 **chewBBACA** stands for "BSR-Based Allele Calling Algorithm". The "chew" part could be thought of as "Comprehensive and  Highly Efficient Workflow" 
 but at this point still it needs a bit of work to make that claim so we just add "chew" to add extra coolness to the software name.
-This tool is in beta test.
 
 The development of the tools have been supported by INNUENDO project (https://www.innuendoweb.org) co-funded by the European Food Safety Authority (EFSA), grant agreement GP/EFSA/AFSCO/2015/01/CT2
 ("New approaches in identifying and characterizing microbial and chemical hazards") and by the ONEIDA project (LISBOA-01-0145-FEDER-016417) co-funded by FEEI - “Fundos Europeus Estruturais e de Investimento” 

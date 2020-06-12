@@ -22,7 +22,7 @@
         <exit_code range="1:" level="fatal" description="Tool exception" />
         <exit_code range=":-1" level="fatal" description="Tool exception" />
     </stdio>
-    <command>
+    <command><![CDATA[
         perl 
         $__tool_directory__/chewBBACA.pl $selectFunction.myFunctions
           #if str( $selectFunction.myFunctions ) in ('CreateSchema', 'AlleleCall')
@@ -76,7 +76,7 @@
             #end if
 
             #if $selectFunction.ptfmode.ptf_select=="system"
-              --ptf ${ filter( lambda x: str( x[0] ) == str( $selectFunction.ptfmode.ptf_system ), $__app__.tool_data_tables[ 'chewbbaca_ptfs' ].get_fields() )[0][-1] }
+              --ptf ${ list(filter( lambda x: str( x[0] ) == str( $selectFunction.ptfmode.ptf_system ), $__app__.tool_data_tables[ 'chewbbaca_ptfs' ].get_fields() ))[0][-1] }
             #elif $selectFunction.ptfmode.ptf_select=="user"
               --ptf $selectFunction.ptfmode.ptf_user
             #end if
@@ -88,7 +88,7 @@
           #end if
           #if str( $selectFunction.myFunctions ) == 'AlleleCall'
             #if $selectFunction.mode.schema_select=="system"
-              -g ${ filter( lambda x: str( x[0] ) == str( $selectFunction.mode.reference ), $__app__.tool_data_tables[ 'chewbbaca_schemas' ].get_fields() )[0][-1] }
+              -g ${ list(filter( lambda x: str( x[0] ) == str( $selectFunction.mode.reference ), $__app__.tool_data_tables[ 'chewbbaca_schemas' ].get_fields() ))[0][-1] }
             #else
               -g $selectFunction.mode.genes
             #end if
@@ -129,7 +129,7 @@
             -g $selectFunction.genes
           #end if
           "
-    </command>
+    ]]></command>
 
     <inputs>
         <conditional name="selectFunction">

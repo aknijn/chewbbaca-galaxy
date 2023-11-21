@@ -1,0 +1,124 @@
+<tool id="chewBBACA_allelecall" name="chewBBACA Allele Call" version="3.0+galaxy1">
+    <description>BSR-Based Allele Calling Algorithm
+    </description>
+    <requirements>
+        <requirement type="package" version="3.3.1">chewbbaca</requirement>
+    </requirements>
+    <!-- basic error handling -->
+    <stdio>
+        <!-- Assume anything other than zero is an error -->
+        <exit_code range="1:" level="fatal" description="Tool exception" />
+        <exit_code range=":-1" level="fatal" description="Tool exception" />
+    </stdio>
+    <command>
+        perl 
+        $__tool_directory__/chewBBACA_allelecall.pl
+            '${",".join(map(str, $input1))}'
+            #set $input_names = []
+            #for $input in $input1
+                $input_names.append($input.element_identifier)
+            #end for
+            #set $input_name = ",".join(map(str, $input_names))
+            '$input_name'
+            '$statistics,$contigsinfo,$alleles,$hashedalleles,$logginginfo,$repeatedloci'
+            "chewBBACA.py AlleleCall
+            -o output_dir
+            -i input_dir
+            --cpu \${GALAXY_SLOTS:-4}
+            --hash-profiles crc32
+            --no-inferred
+            #if $bsr
+              --bsr $bsr
+            #end if
+            #if $ptfmode.ptf_select=="system"
+              --ptf ${ list( filter( lambda x: str( x[0] ) == str( $ptfmode.ptf_system ), $__app__.tool_data_tables[ 'chewbbaca_28_ptfs' ].get_fields() ) )[0][-1] }
+            #elif $ptfmode.ptf_select=="user"
+              --ptf $ptfmode.ptf_user
+            #end if
+            #if $mode.schema_select=="system"
+              -g ${ list( filter( lambda x: str( x[0] ) == str( $mode.reference ), $__app__.tool_data_tables[ 'chewbbaca_28_schemas' ].get_fields() ) )[0][-1] }
+            #else
+              -g $mode.genes
+            #end if
+            "
+    </command>
+
+    <inputs>
+        <param name="input1" format="fasta" type="data" multiple="true" label="Selection of genome files (fasta)" />
+        <conditional name="mode">
+          <param name="schema_select" type="select" display="radio" label="Which schema would you like to use as a reference?">
+            <option value="system" selected="True">System reference</option>
+            <option value="user">Own reference</option>
+          </param>
+          <when value="system">
+            <param name="reference" type="select" label="Choose reference">
+              <options from_data_table="chewbbaca_28_schemas" />
+            </param>
+          </when>
+          <when value="user">
+            <param name="genes" format="txt" type="data" label="File with list of genes (fasta)" />
+          </when>
+        </conditional>
+        <param name="bsr" type="text" value="0.6" optional="true" label="minimum BSR score" />
+        <conditional name="ptfmode">
+          <param name="ptf_select" type="select" display="radio" label="Which Prodigal training file would you like to use?">
+            <option value="system">System training file</option>
+            <option value="user">Own training file</option>
+            <option value="noptf" selected="True">No training file</option>
+          </param>
+          <when value="system">
+            <param name="ptf_system" type="select" label="Choose Prodigal training file">
+              <options from_data_table="chewbbaca_28_ptfs" />
+            </param>
+          </when>
+          <when value="user">
+            <param name="ptf_user" format="binary" type="data" optional="true" multiple="false" label="Prodigal Training File" />
+          </when>
+          <when value="noptf" />
+        </conditional>
+    </inputs>
+
+    <!-- define outputs -->
+    <outputs>
+        <data format="tsv" name="statistics" label="${tool.name}:AlleleCall on ${on_string}: Statistics" />
+        <data format="tsv" name="contigsinfo" label="${tool.name}:AlleleCall on ${on_string}: Contigs Info" />
+        <data format="tsv" name="alleles" label="${tool.name}:AlleleCall on ${on_string}: Alleles" />
+        <data format="tsv" name="hashedalleles" label="${tool.name}:AlleleCall on ${on_string}: Hashed Alleles" />
+        <data format="txt" name="logginginfo" label="${tool.name}:AlleleCall on ${on_string}: Logging info" />
+        <data format="txt" name="repeatedloci" label="${tool.name}:AlleleCall on ${on_string}: Repeated Loci" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input1" value="a_contigs.fasta" ftype="fasta" />
+            <param name="mode['schema_select']" value="system" />
+            <param name="mode['reference']" value="schema_pubMLST" />
+            <param name="mode['ptf_select']" value="noptf" />
+            <output name="statistics" >
+                <assert_contents>
+                    <has_text text="a_contigs.fasta" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+**chewBBACA** stands for "BSR-Based Allele Calling Algorithm". The "chew" part could be thought of as "Comprehensive and  Highly Efficient Workflow" 
+but at this point still it needs a bit of work to make that claim so we just add "chew" to add extra coolness to the software name.
+
+The development of the tools have been supported by INNUENDO project (https://www.innuendoweb.org) co-funded by the European Food Safety Authority (EFSA), grant agreement GP/EFSA/AFSCO/2015/01/CT2
+("New approaches in identifying and characterizing microbial and chemical hazards") and by the ONEIDA project (LISBOA-01-0145-FEDER-016417) co-funded by FEEI - “Fundos Europeus Estruturais e de Investimento” 
+from “Programa Operacional Regional Lisboa 2020” and by national funds from FCT - “Fundação para a Ciência e a Tecnologia” and BacGenTrack (TUBITAK/0004/2014) 
+[FCT/ Scientific and Technological Research Council of Turkey (Türkiye Bilimsel ve Teknolojik Araşrrma Kurumu, TÜBITAK)].
+    </help>
+    <citations>
+      <citation type="bibtex">@ARTICLE{andrews_s,
+            author = {Rossi, M and Silva, M and Ribeiro-Gonçalves, B and Silva, DN and Machado, MP and Oleastro, M and Borges, V and Isidro, J and Gomes, JP and Vieira, L and Barker, DOR and Llarena, AK and Halkilahti,
+            J and Jaakkonen, A and Palma, F and Culebro, A and Kivistö, R and Hänninen, ML and Laukkanen-Ninios, R and Fredriksson-Ahomaa, M and Salmenlinna, S and Hakkinen, M and Garaizer, J and Bikandi, J and Hilbert,
+            F and Taboada, EN and Carriço, JA},
+            keywords = {bioinformatics, ngs, mlst},
+            title = {{INNUENDO whole and core genome MLST databases and schemas for foodborne pathogens}},
+            url = {https://github.com/TheInnuendoProject/chewBBACA_schemas}
+        }</citation>
+      <citation type="doi">10.1099/mgen.0.000166</citation>
+      <citation type="doi">10.1371/journal.pgen.1007261</citation>
+    </citations>
+</tool>

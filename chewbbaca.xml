@@ -1,20 +1,20 @@
-<tool id="chewBBACA" name="chewBBACA" version="2.0">
+<tool id="chewBBACA" name="chewBBACA" version="2.8">
     <description>BSR-Based Allele Calling Algorithm
     </description>
     <requirements>
-        <requirement type="package" version="3.6">Python</requirement>
-        <requirement type="package" version="1.15.3">numpy</requirement>
-        <requirement type="package" version="0.19.1">scipy</requirement>
-        <requirement type="package" version="5.22.2.1">perl</requirement>
-        <requirement type="package" version="1.72">biopython</requirement>
-        <requirement type="package" version="3.8.1">plotly</requirement>
-        <requirement type="package" version="1.8.2">SPARQLWrapper</requirement>
-        <requirement type="package" version="0.23.4">pandas</requirement>
-        <requirement type="package" version="2.5.0">blast</requirement>
+        <requirement type="package" version="3.9">python</requirement>
+        <requirement type="package" version="1.20.3">numpy</requirement>
+        <requirement type="package" version="1.6.3">scipy</requirement>
+        <requirement type="package" version="5.26.2">perl</requirement>
+        <requirement type="package" version="1.78">biopython</requirement>
+        <requirement type="package" version="4.14.3">plotly</requirement>
+        <requirement type="package" version="1.8.5">sparqlwrapper</requirement>
+        <requirement type="package" version="1.2.4">pandas</requirement>
+        <requirement type="package" version="2.11.0">blast</requirement>
         <requirement type="package" version="2.6.3">prodigal</requirement>
         <requirement type="package" version="2.1">clustalw</requirement>
-        <requirement type="package" version="7.313">mafft</requirement>
-        <requirement type="package" version="2.0.16">chewbbaca</requirement>
+        <requirement type="package" version="7.475">mafft</requirement>
+        <requirement type="package" version="2.8.5">chewbbaca</requirement>
     </requirements>
     <!-- basic error handling -->
     <stdio>

@@ -1,8 +1,8 @@
-<tool id="chewBBACA_allelecall" name="chewBBACA Allele Call" version="3.0+galaxy1">
+<tool id="chewBBACA_allelecall" name="chewBBACA Allele Call" version="3.0+galaxy2">
     <description>BSR-Based Allele Calling Algorithm
     </description>
     <requirements>
-        <requirement type="package" version="3.3.1">chewbbaca</requirement>
+        <requirement type="package" version="3.3.2">chewbbaca</requirement>
     </requirements>
     <!-- basic error handling -->
     <stdio>
@@ -20,13 +20,14 @@
             #end for
             #set $input_name = ",".join(map(str, $input_names))
             '$input_name'
-            '$statistics,$contigsinfo,$alleles,$hashedalleles,$logginginfo,$repeatedloci'
+            '$statistics,$contigsinfo,$alleles,$hashedalleles,$logginginfo,$repeatedloci,$newalleles'
             "chewBBACA.py AlleleCall
             -o output_dir
             -i input_dir
             --cpu \${GALAXY_SLOTS:-4}
             --hash-profiles crc32
             --no-inferred
+			--output-novel
             #if $bsr
               --bsr $bsr
             #end if
@@ -86,6 +87,7 @@
         <data format="tsv" name="hashedalleles" label="${tool.name}:AlleleCall on ${on_string}: Hashed Alleles" />
         <data format="txt" name="logginginfo" label="${tool.name}:AlleleCall on ${on_string}: Logging info" />
         <data format="txt" name="repeatedloci" label="${tool.name}:AlleleCall on ${on_string}: Repeated Loci" />
+        <data format="fasta" name="newalleles" label="${tool.name}:AlleleCall on ${on_string}: New Alleles" />
     </outputs>
     <tests>
         <test>

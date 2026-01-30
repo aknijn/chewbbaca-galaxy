@@ -95,6 +95,10 @@ sub collectOutput{
     if (@repeatedloci == 1) {
       move($repeatedloci[0], $outputs[5])
     }
+    my @novelalleles = glob "output_dir/novel_alleles.fasta";
+    if (@novelalleles == 1) {
+      move($novelalleles[0], $outputs[6])
+    }
     return 0;
 }
 
